@@ -1,0 +1,28 @@
+# Nome do seu workflow
+name: Deploy to Firebase Hosting on merge
+
+# Define o gatilho: rodar quando houver um push na branch 'main'
+on:
+  push:
+    branches:
+      - main
+
+# Tarefas a serem executadas
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest # Usar um ambiente Linux padrão
+    steps:
+      # 1. Baixa o código do seu repositório
+      - uses: actions/checkout@v4
+
+      # 2. (Opcional) Passo para construir seu projeto. Descomente e ajuste se necessário.
+      #    Exemplo para projetos Node.js (React, Angular, Vue, etc.)
+      # - run: npm ci && npm run build
+
+      # 3. Faz o deploy no Firebase Hosting
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          channelId: live # Faz o deploy no canal principal (produção)
+          projectId: curriculoiagerador # <-- MUITO IMPORTANTE: TROQUE PELO ID DO SEU PROJETO
