@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Gerador de Currículo com IA</title>
+  <link rel="stylesheet" href="stile.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Entrar na sua conta</h1>
+    
+    <form id="loginForm">
+      <label for="emailLogin">Email:</label>
+      <input type="email" id="emailLogin" name="emailLogin" required placeholder="seu.email@example.com" />
+      
+      <label for="senhaLogin">Senha:</label>
+      <input type="password" id="senhaLogin" name="senhaLogin" required placeholder="Digite sua senha" />
+      
+      <button type="submit">Entrar</button>
+    </form>
+
+    <div id="loadingIndicator" style="display: none;">
+      Processando login...
+    </div>
+
+    <div id="resultado"></div>
+
+    <div class="navigation-links">
+      <p>Ou faça login com:</p>
+      <button onclick="loginComGoogle()" style="background: #db4437; margin-bottom: 15px;">
+        Entrar com Google
+      </button>
+      
+      <p>Não tem uma conta? <a href="/cadastro.html">Cadastre-se aqui</a></p>
+    </div>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+</html>

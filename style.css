@@ -1,0 +1,197 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f2f5;
+  margin: 0;
+  padding: 0;
+  display: flex; /* Para centralizar o container verticalmente */
+  justify-content: center; /* Para centralizar o container horizontalmente */
+  align-items: center; /* Para centralizar o container verticalmente */
+  min-height: 100vh; /* Garante que o corpo ocupe a altura total da viewport */
+}
+
+.container {
+  max-width: 600px;
+  width: 90%; /* Adiciona largura relativa para melhor responsividade */
+  margin: 20px auto; /* Ajusta a margem superior/inferior */
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 25px; /* Adiciona espaço abaixo do título */
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-top: 15px;
+  margin-bottom: 5px; /* Adiciona um pequeno espaço abaixo do label */
+  font-weight: bold;
+  color: #555;
+}
+
+input, textarea {
+  padding: 12px; /* Aumenta o padding para melhor toque */
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+  font-size: 16px; /* Evita zoom em dispositivos iOS */
+  -webkit-appearance: none; /* Remove estilo padrão iOS */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input:focus, textarea:focus {
+  border-color: #007BFF; /* Destaca o campo focado */
+  box-shadow: 0 0 5px rgba(0,123,255,0.2);
+  outline: none; /* Remove o outline padrão do navegador */
+}
+
+textarea {
+  min-height: 80px; /* Altura mínima para textareas */
+}
+
+button {
+  margin-top: 25px; /* Aumenta o espaço acima do botão */
+  padding: 14px; /* Aumenta o padding do botão */
+  background: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.1em; /* Aumenta o tamanho da fonte do botão */
+  font-weight: bold;
+  transition: background 0.3s ease; /* Adiciona transição suave para o hover */
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+.btn-ia {
+  background: linear-gradient(45deg, #6f42c1, #e83e8c);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+.btn-ia:hover {
+  background: linear-gradient(45deg, #5a2d91, #c74375);
+  transform: translateY(-2px);
+}
+
+.btn-ia:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.resultado-ia {
+  margin-top: 15px;
+  padding: 15px;
+  background: #e8f4fd;
+  border-left: 4px solid #007BFF;
+  border-radius: 8px;
+  display: none;
+}
+
+.resultado-ia h4 {
+  color: #0056b3;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.resultado-ia p {
+  line-height: 1.6;
+  color: #333;
+  margin: 0;
+}
+
+.loading-ia {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #007BFF;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#resultado {
+  margin-top: 25px; /* Ajusta margem para o resultado */
+  text-align: center;
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 4px;
+  min-height: 30px; /* Garante altura mínima para a mensagem */
+}
+
+#loadingIndicator {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.1em;
+    color: #007BFF;
+}
+
+.navigation-links {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.navigation-links p {
+  margin: 10px 0;
+  color: #666;
+}
+
+.navigation-links a {
+  color: #007BFF;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.navigation-links a:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+/* Opcional: Adicionar um spinner CSS */
+/* Exemplo simples de spinner */
+/*
+#loadingIndicator::before {
+    content: '';
+    box-sizing: border-box;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007BFF;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+*/

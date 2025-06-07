@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cadastro - Gerador de Currículo com IA</title>
+  <link rel="stylesheet" href="stile.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Cadastro de Usuário</h1>
+    <form id="cadastroForm">
+      <label for="nomeUsuario">Nome de Usuário:</label>
+      <input type="text" id="nomeUsuario" name="nomeUsuario" required minlength="3" maxlength="50" placeholder="Escolha um nome de usuário">
+
+      <label for="emailUsuario">Email:</label>
+      <input type="email" id="emailUsuario" name="emailUsuario" required placeholder="seu.email@example.com">
+
+      <label for="senha">Senha:</label>
+      <input type="password" id="senha" name="senha" required minlength="6" placeholder="Mínimo 6 caracteres">
+
+      <label for="confirmarSenha">Confirmar Senha:</label>
+      <input type="password" id="confirmarSenha" name="confirmarSenha" required minlength="6" placeholder="Digite a senha novamente">
+
+      <label for="nomeCompleto">Nome Completo:</label>
+      <input type="text" id="nomeCompleto" name="nomeCompleto" required minlength="3" maxlength="100" placeholder="Seu nome completo">
+
+      <label for="telefoneUsuario">Telefone:</label>
+      <input type="tel" id="telefoneUsuario" name="telefoneUsuario" required pattern="^\+?[0-9\s\-\(\)]{7,20}$" placeholder="(XX) XXXXX-XXXX">
+
+      <button type="submit">Cadastrar</button>
+    </form>
+
+    <div class="navigation-links">
+      <p>Já tem uma conta? <a href="login.html">Fazer Login</a></p>
+      <p>Voltar para <a href="/">Página Inicial</a></p>
+    </div>
+
+    <div id="resultado"></div>
+    <div id="loadingIndicator" style="display: none; text-align: center; margin-top: 20px;">
+        <p>Criando conta... Por favor, aguarde.</p>
+    </div>
+  </div>
+  <script src="cadastro.js"></script>
+</body>
+</html>

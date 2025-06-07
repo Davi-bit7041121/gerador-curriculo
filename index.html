@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Gerador de Currículo com IA</title>
+  <link rel="stylesheet" href="stile.css">
+</head>
+<body>
+  <div class="container">
+    <div style="text-align: right; margin-bottom: 10px;">
+      <button onclick="logout()" style="background: #dc3545; padding: 8px 16px; border-radius: 4px; color: white; border: none; cursor: pointer;">Sair</button>
+    </div>
+
+    <h1>Gerador de Currículo com IA</h1>
+    <div id="welcome-message" style="text-align: center; margin-bottom: 20px; color: #007BFF; font-weight: bold;"></div>
+    <div id="plano-info" style="text-align: center; margin-bottom: 20px; padding: 10px; border-radius: 8px;"></div>
+
+    <form id="resumeForm">
+      <label for="nome">Nome Completo:</label>
+      <input type="text" id="nome" name="nome" required />
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required />
+
+      <label for="telefone">Telefone:</label>
+      <input type="tel" id="telefone" name="telefone" required />
+
+      <label for="resumo">Resumo Profissional:</label>
+      <textarea id="resumo" name="resumo" placeholder="Ex: Trabalhei como vendedor na loja X, atendia clientes e organizava produtos..." required></textarea>
+      <button type="button" class="btn-ia" onclick="melhorarTextoIA('resumo', 'Resumo Profissional')" style="display: none;">✨ Melhorar com IA</button>
+      <div id="resultado-resumo" class="resultado-ia"></div>
+
+      <label for="experiencias">Experiências Profissionais:</label>
+      <textarea id="experiencias" name="experiencias" placeholder="Ex: Trabalhei como vendedor na loja X, atendia clientes e organizava produtos... (uma por linha)..." required></textarea>
+      <button type="button" class="btn-ia" onclick="melhorarTextoIA('experiencias', 'Experiências Profissionais')" style="display: none;">✨ Melhorar com IA</button>
+      <div id="resultado-experiencias" class="resultado-ia"></div>
+
+      <label for="formacao">Formação Acadêmica:</label>
+      <textarea id="formacao" name="formacao" placeholder="Liste sua formação acadêmica. Ex: Estudei na faculdade X, me formei em engenharia..." required></textarea>
+      <button type="button" class="btn-ia" onclick="melhorarTextoIA('formacao', 'Formação Acadêmica')" style="display: none;">✨ Melhorar com IA</button>
+      <div id="resultado-formacao" class="resultado-ia"></div>
+
+      <label for="habilidades">Habilidades:</label>
+      <textarea id="habilidades" name="habilidades" placeholder="Liste suas principais habilidades. Ex: comunicação, excel, vendas, inglês..." required></textarea>
+      <button type="button" class="btn-ia" onclick="melhorarTextoIA('habilidades', 'Habilidades')" style="display: none;">✨ Melhorar com IA</button>
+      <div id="resultado-habilidades" class="resultado-ia"></div>
+
+      <button type="submit">Gerar Currículo PDF</button>
+    </form>
+
+    <div id="loadingIndicator" style="display: none;">
+      Gerando seu currículo...
+    </div>
+
+    <div id="resultado"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
