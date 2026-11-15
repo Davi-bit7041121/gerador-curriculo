@@ -1,0 +1,1 @@
+window.firebaseAuthReady=(async()=>{const r=await fetch('/__/firebase/init.json');if(!r.ok)throw new Error('Configuração Firebase indisponível no Hosting.');const c=await r.json();if(!firebase.apps.length)firebase.initializeApp(c);const a=firebase.auth();await a.setPersistence(firebase.auth.Auth.Persistence.LOCAL);return a;})();
