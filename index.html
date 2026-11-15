@@ -2,63 +2,143 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Gerador de Currículo com IA</title>
-  <link rel="stylesheet" href="stile.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="Crie um currículo profissional em PDF de forma simples e rápida.">
+  <title>Currículo Pro | Crie seu currículo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <div style="text-align: right; margin-bottom: 10px;">
-      <button onclick="logout()" style="background: #dc3545; padding: 8px 16px; border-radius: 4px; color: white; border: none; cursor: pointer;">Sair</button>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="Currículo Pro - início"><span class="brand-mark">C</span><span>currículo<span class="brand-light">pro</span></span></a>
+    <div class="topbar-actions">
+      <span class="secure-label"><span class="secure-dot"></span> Seus dados com você</span>
+      <button type="button" class="logout-button" onclick="logout()">Sair</button>
     </div>
+  </header>
 
-    <h1>Gerador de Currículo com IA</h1>
-    <div id="welcome-message" style="text-align: center; margin-bottom: 20px; color: #007BFF; font-weight: bold;"></div>
-    <div id="plano-info" style="text-align: center; margin-bottom: 20px; padding: 10px; border-radius: 8px;"></div>
+  <main class="page-shell">
+    <section class="intro">
+      <div class="eyebrow"><span></span> CONSTRUTOR DE CURRÍCULO</div>
+      <h1>Seu próximo passo<br><span>começa aqui.</span></h1>
+      <p>Conte sua história profissional. Nós ajudamos a apresentá-la da melhor forma.</p>
+      <div id="welcome-message" class="welcome-message"></div>
+      <div id="plano-info" class="plan-info"></div>
+    </section>
 
-    <form id="resumeForm">
-      <label for="nome">Nome Completo:</label>
-      <input type="text" id="nome" name="nome" required />
+    <div class="workspace">
+      <section class="editor-panel">
+        <div class="panel-heading">
+          <div><span class="section-kicker">ETAPA ÚNICA</span><h2>Vamos montar seu currículo</h2><p>Preencha os campos abaixo. Os campos com * são obrigatórios.</p></div>
+          <span class="edit-icon" aria-hidden="true">✎</span>
+        </div>
 
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required />
+        <form id="resumeForm">
+          <div class="form-section">
+            <div class="form-section-title"><span class="number">01</span><div><h3>Informações pessoais</h3><p>Como as empresas podem entrar em contato?</p></div></div>
+            <div class="field-grid">
+              <div class="field full"><label for="nome">Nome completo <span>*</span></label><input type="text" id="nome" name="nome" placeholder="Ex.: Maria Oliveira" autocomplete="name" required maxlength="100"></div>
+              <div class="field"><label for="email">E-mail <span>*</span></label><input type="email" id="email" name="email" placeholder="voce@email.com" autocomplete="email" required></div>
+              <div class="field"><label for="telefone">Telefone <span>*</span></label><input type="tel" id="telefone" name="telefone" placeholder="(11) 99999-9999" autocomplete="tel" required></div>
+            </div>
+          </div>
 
-      <label for="telefone">Telefone:</label>
-      <input type="tel" id="telefone" name="telefone" required />
+          <div class="form-section">
+            <div class="form-section-title"><span class="number">02</span><div><h3>Resumo profissional</h3><p>Apresente seu perfil em poucas frases.</p></div></div>
+            <label class="sr-only" for="resumo">Resumo profissional</label>
+            <textarea id="resumo" name="resumo" placeholder="Ex.: Profissional com experiência em atendimento ao cliente, organização de processos e trabalho em equipe..." required minlength="50"></textarea>
+            <div class="field-meta"><span>Uma apresentação clara faz diferença.</span><span id="resumo-count">0 caracteres</span></div>
+            <button type="button" class="btn-ia" onclick="melhorarTextoIA('resumo', 'Resumo Profissional')" style="display:none;">✦ Melhorar com IA</button>
+            <div id="resultado-resumo" class="resultado-ia"></div>
+          </div>
 
-      <label for="resumo">Resumo Profissional:</label>
-      <textarea id="resumo" name="resumo" placeholder="Ex: Trabalhei como vendedor na loja X, atendia clientes e organizava produtos..." required></textarea>
-      <button type="button" class="btn-ia" onclick="melhorarTextoIA('resumo', 'Resumo Profissional')" style="display: none;">✨ Melhorar com IA</button>
-      <div id="resultado-resumo" class="resultado-ia"></div>
+          <div class="form-section">
+            <div class="form-section-title"><span class="number">03</span><div><h3>Experiência profissional</h3><p>Inclua cargos, empresas, períodos e atividades. Uma experiência por linha.</p></div></div>
+            <label class="sr-only" for="experiencias">Experiências profissionais</label>
+            <textarea id="experiencias" name="experiencias" placeholder="Ex.:&#10;Vendedor | Loja Exemplo | 2022–2024&#10;Atendimento ao cliente, organização de estoque e apoio às vendas." required minlength="20"></textarea>
+            <button type="button" class="btn-ia" onclick="melhorarTextoIA('experiencias', 'Experiências Profissionais')" style="display:none;">✦ Melhorar com IA</button>
+            <div id="resultado-experiencias" class="resultado-ia"></div>
+          </div>
 
-      <label for="experiencias">Experiências Profissionais:</label>
-      <textarea id="experiencias" name="experiencias" placeholder="Ex: Trabalhei como vendedor na loja X, atendia clientes e organizava produtos... (uma por linha)..." required></textarea>
-      <button type="button" class="btn-ia" onclick="melhorarTextoIA('experiencias', 'Experiências Profissionais')" style="display: none;">✨ Melhorar com IA</button>
-      <div id="resultado-experiencias" class="resultado-ia"></div>
+          <div class="form-section">
+            <div class="form-section-title"><span class="number">04</span><div><h3>Formação acadêmica</h3><p>Escolaridade, cursos e instituições de ensino.</p></div></div>
+            <label class="sr-only" for="formacao">Formação acadêmica</label>
+            <textarea id="formacao" name="formacao" placeholder="Ex.: Ensino Médio — Escola Exemplo — Conclusão em 2023" required minlength="20"></textarea>
+            <button type="button" class="btn-ia" onclick="melhorarTextoIA('formacao', 'Formação Acadêmica')" style="display:none;">✦ Melhorar com IA</button>
+            <div id="resultado-formacao" class="resultado-ia"></div>
+          </div>
 
-      <label for="formacao">Formação Acadêmica:</label>
-      <textarea id="formacao" name="formacao" placeholder="Liste sua formação acadêmica. Ex: Estudei na faculdade X, me formei em engenharia..." required></textarea>
-      <button type="button" class="btn-ia" onclick="melhorarTextoIA('formacao', 'Formação Acadêmica')" style="display: none;">✨ Melhorar com IA</button>
-      <div id="resultado-formacao" class="resultado-ia"></div>
+          <div class="form-section last-section">
+            <div class="form-section-title"><span class="number">05</span><div><h3>Habilidades</h3><p>Ferramentas, conhecimentos e competências. Separe por vírgulas ou linhas.</p></div></div>
+            <label class="sr-only" for="habilidades">Habilidades</label>
+            <textarea id="habilidades" name="habilidades" placeholder="Ex.: Comunicação, Excel, organização, inglês..." required minlength="10"></textarea>
+            <button type="button" class="btn-ia" onclick="melhorarTextoIA('habilidades', 'Habilidades')" style="display:none;">✦ Melhorar com IA</button>
+            <div id="resultado-habilidades" class="resultado-ia"></div>
+          </div>
 
-      <label for="habilidades">Habilidades:</label>
-      <textarea id="habilidades" name="habilidades" placeholder="Liste suas principais habilidades. Ex: comunicação, excel, vendas, inglês..." required></textarea>
-      <button type="button" class="btn-ia" onclick="melhorarTextoIA('habilidades', 'Habilidades')" style="display: none;">✨ Melhorar com IA</button>
-      <div id="resultado-habilidades" class="resultado-ia"></div>
+          <div class="submit-area">
+            <div class="privacy-note"><span>✓</span><span>Revise suas informações antes de gerar o PDF.</span></div>
+            <button type="submit" class="submit-button"><span>Gerar meu currículo</span><span aria-hidden="true">→</span></button>
+            <p class="submit-caption">Seu documento será preparado em formato PDF.</p>
+          </div>
+        </form>
+        <div id="loadingIndicator" class="loading-indicator" style="display:none;"><span class="spinner"></span> Preparando seu currículo...</div>
+        <div id="resultado" class="result-message" aria-live="polite"></div>
+      </section>
 
-      <button type="submit">Gerar Currículo PDF</button>
-    </form>
-
-    <div id="loadingIndicator" style="display: none;">
-      Gerando seu currículo...
+      <aside class="preview-column">
+        <div class="preview-sticky">
+          <div class="preview-heading"><div><span class="section-kicker">VISUALIZAÇÃO</span><h2>Seu currículo</h2></div><span class="live-pill"><span></span> AO VIVO</span></div>
+          <div class="paper-wrap">
+            <article class="resume-paper" aria-label="Prévia do currículo">
+              <div class="paper-topline"></div>
+              <div class="paper-header"><h2 id="preview-nome">Seu nome completo</h2><p id="preview-contact">seuemail@email.com · (00) 00000-0000</p></div>
+              <section class="paper-section"><h3>RESUMO PROFISSIONAL</h3><p id="preview-resumo" class="paper-placeholder">Seu resumo profissional aparecerá aqui...</p></section>
+              <section class="paper-section"><h3>EXPERIÊNCIA PROFISSIONAL</h3><p id="preview-experiencias" class="paper-placeholder">Suas experiências aparecerão aqui...</p></section>
+              <section class="paper-section"><h3>FORMAÇÃO ACADÊMICA</h3><p id="preview-formacao" class="paper-placeholder">Sua formação aparecerá aqui...</p></section>
+              <section class="paper-section"><h3>HABILIDADES</h3><p id="preview-habilidades" class="paper-placeholder">Suas habilidades aparecerão aqui...</p></section>
+              <div class="paper-footer">CURRÍCULO PROFISSIONAL</div>
+            </article>
+          </div>
+          <div class="preview-tip"><span>✦</span><p><strong>Dica:</strong> use frases objetivas e destaque resultados reais. Não invente experiências ou qualificações.</p></div>
+        </div>
+      </aside>
     </div>
+    <footer class="site-footer"><span>currículopro</span><span>Feito para ajudar você a dar o próximo passo.</span></footer>
+  </main>
 
-    <div id="resultado"></div>
-  </div>
-
+  <script>
+    const previewFields = {
+      nome: document.getElementById('preview-nome'),
+      resumo: document.getElementById('preview-resumo'),
+      experiencias: document.getElementById('preview-experiencias'),
+      formacao: document.getElementById('preview-formacao'),
+      habilidades: document.getElementById('preview-habilidades')
+    };
+    const placeholders = {
+      resumo: 'Seu resumo profissional aparecerá aqui...',
+      experiencias: 'Suas experiências aparecerão aqui...',
+      formacao: 'Sua formação aparecerá aqui...',
+      habilidades: 'Suas habilidades aparecerão aqui...'
+    };
+    Object.keys(previewFields).forEach((key) => {
+      const input = document.getElementById(key);
+      input.addEventListener('input', () => {
+        const value = input.value.trim();
+        previewFields[key].textContent = value || (placeholders[key] || 'Seu nome completo');
+        previewFields[key].classList.toggle('paper-placeholder', !value);
+        if (key === 'resumo') document.getElementById('resumo-count').textContent = input.value.length + ' caracteres';
+      });
+    });
+    ['email', 'telefone'].forEach((key) => document.getElementById(key).addEventListener('input', () => {
+      const email = document.getElementById('email').value || 'seuemail@email.com';
+      const phone = document.getElementById('telefone').value || '(00) 00000-0000';
+      document.getElementById('preview-contact').textContent = email + ' · ' + phone;
+    }));
+  </script>
   <script src="script.js"></script>
 </body>
 </html>
