@@ -51,7 +51,7 @@
             <label class="sr-only" for="resumo">Resumo profissional</label>
             <textarea id="resumo" name="resumo" placeholder="Ex.: Profissional com experiência em atendimento ao cliente, organização de processos e trabalho em equipe..." required minlength="50"></textarea>
             <div class="field-meta"><span>Uma apresentação clara faz diferença.</span><span id="resumo-count">0 caracteres</span></div>
-            <button type="button" class="btn-ia" onclick="melhorarTextoIA('resumo', 'Resumo Profissional')" style="display:none;">✦ Melhorar com IA</button>
+            <button type="button" class="btn-ia" onclick="melhorarTextoIA('resumo', 'Resumo Profissional', this)" style="display:none;">✦ Melhorar com IA</button>
             <div id="resultado-resumo" class="resultado-ia"></div>
           </div>
 
@@ -59,7 +59,7 @@
             <div class="form-section-title"><span class="number">03</span><div><h3>Experiência profissional</h3><p>Inclua cargos, empresas, períodos e atividades. Uma experiência por linha.</p></div></div>
             <label class="sr-only" for="experiencias">Experiências profissionais</label>
             <textarea id="experiencias" name="experiencias" placeholder="Ex.:&#10;Vendedor | Loja Exemplo | 2022–2024&#10;Atendimento ao cliente, organização de estoque e apoio às vendas." required minlength="20"></textarea>
-            <button type="button" class="btn-ia" onclick="melhorarTextoIA('experiencias', 'Experiências Profissionais')" style="display:none;">✦ Melhorar com IA</button>
+            <button type="button" class="btn-ia" onclick="melhorarTextoIA('experiencias', 'Experiências Profissionais', this)" style="display:none;">✦ Melhorar com IA</button>
             <div id="resultado-experiencias" class="resultado-ia"></div>
           </div>
 
@@ -67,7 +67,7 @@
             <div class="form-section-title"><span class="number">04</span><div><h3>Formação acadêmica</h3><p>Escolaridade, cursos e instituições de ensino.</p></div></div>
             <label class="sr-only" for="formacao">Formação acadêmica</label>
             <textarea id="formacao" name="formacao" placeholder="Ex.: Ensino Médio — Escola Exemplo — Conclusão em 2023" required minlength="20"></textarea>
-            <button type="button" class="btn-ia" onclick="melhorarTextoIA('formacao', 'Formação Acadêmica')" style="display:none;">✦ Melhorar com IA</button>
+            <button type="button" class="btn-ia" onclick="melhorarTextoIA('formacao', 'Formação Acadêmica', this)" style="display:none;">✦ Melhorar com IA</button>
             <div id="resultado-formacao" class="resultado-ia"></div>
           </div>
 
@@ -75,7 +75,7 @@
             <div class="form-section-title"><span class="number">05</span><div><h3>Habilidades</h3><p>Ferramentas, conhecimentos e competências. Separe por vírgulas ou linhas.</p></div></div>
             <label class="sr-only" for="habilidades">Habilidades</label>
             <textarea id="habilidades" name="habilidades" placeholder="Ex.: Comunicação, Excel, organização, inglês..." required minlength="10"></textarea>
-            <button type="button" class="btn-ia" onclick="melhorarTextoIA('habilidades', 'Habilidades')" style="display:none;">✦ Melhorar com IA</button>
+            <button type="button" class="btn-ia" onclick="melhorarTextoIA('habilidades', 'Habilidades', this)" style="display:none;">✦ Melhorar com IA</button>
             <div id="resultado-habilidades" class="resultado-ia"></div>
           </div>
 
