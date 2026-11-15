@@ -20,6 +20,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from pwdlib import PasswordHash
 
 from resume_generator import converter_html_para_pdf
+from ia_melhorador import melhorar_texto_ia
 
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO"),
@@ -83,6 +84,13 @@ class DadosCurriculo(BaseModel):
     experiencias: str = Field(..., min_length=20, max_length=6000)
     formacao: str = Field(..., min_length=20, max_length=3000)
     habilidades: str = Field(..., min_length=10, max_length=2000)
+
+
+class DadosMelhoria(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    secao: str = Field(min_length=3, max_length=80)
+    texto: str = Field(min_length=1, max_length=6000)
 
 
 @lru_cache(maxsize=1)
@@ -250,6 +258,20 @@ def login(dados: DadosLogin):
             status_code=503,
             detail="Não foi possível acessar o serviço de autenticação. Tente novamente.",
         ) from exc
+
+
+@app.post("/melhorar_texto")
+def melhorar_texto(
+    dados: DadosMelhoria,
+    usuario_id: str = Depends(usuario_autenticado),
+):
+    """Aplica a melhoria textual disponível no protótipo a usuários autenticados."""
+    try:
+        texto_melhorado = melhorar_texto_ia(dados.secao, dados.texto)
+        return {"texto_melhorado": texto_melhorado}
+    except Exception as exc:
+        logger.exception("Erro ao melhorar texto do currículo.")
+        raise HTTPException(status_code=500, detail="Não foi possível melhorar o texto.") from exc
 
 
 def remover_arquivo(path: str) -> None:
