@@ -20,7 +20,9 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from pwdlib import PasswordHash
 
 from resume_generator import converter_html_para_pdf
-from ia_melhorador import melhorar_texto_ia
+import json
+import urllib.error
+import urllib.request
 
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO"),
@@ -260,18 +262,111 @@ def login(dados: DadosLogin):
         ) from exc
 
 
+def _melhorar_com_gemini(secao: str, texto: str) -> str:
+    """Reescreve um trecho de currículo com Gemini, usando somente a chave do servidor."""
+    api_key = os.getenv("GEMINI_API_KEY", "").strip()
+    if not api_key:
+        raise HTTPException(
+            status_code=503,
+            detail="A IA ainda não foi configurada. Adicione GEMINI_API_KEY nas variáveis do Vercel.",
+        )
+
+    prompt = (
+        "Você é um especialista em recrutamento e redação de currículos no Brasil. "
+        "Reescreva o trecho abaixo em português brasileiro, com linguagem profissional, "
+        "clara, objetiva e natural. Melhore a estrutura e a força dos verbos; elimine "
+        "repetições e erros. Preserve rigorosamente todos os fatos informados. "
+        "NÃO invente empresas, cargos, datas, cursos, resultados, números, ferramentas, "
+        "competências, níveis de domínio ou anos de experiência. Se faltarem dados, "
+        "não os complete por conta própria. Não transforme experiência informal em "
+        "emprego formal. Retorne somente o texto revisado, sem aspas, explicações ou "
+        "títulos adicionais.\n\n"
+        f"Seção do currículo: {secao}\n"
+        f"Texto original:\n{texto}"
+    )
+    payload = {
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+        "generationConfig": {"temperature": 0.35, "maxOutputTokens": 1200},
+    }
+    url = (
+        "https://generativelanguage.googleapis.com/v1beta/models/"
+        "gemini-3.8-flash:generateContent"
+        f"?key={api_key}"
+    )
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=25) as response:
+            resultado = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        # Não registra nem devolve a URL, pois ela contém a chave da API.
+        logger.warning("Gemini recusou a solicitação; HTTP %s.", exc.code)
+        if exc.code == 429:
+            raise HTTPException(
+                status_code=429,
+                detail="Limite gratuito da IA atingido. Aguarde um pouco e tente novamente.",
+            ) from exc
+        if exc.code in (401, 403):
+            raise HTTPException(
+                status_code=503,
+                detail="A chave gratuita da IA está inválida ou sem acesso ao modelo.",
+            ) from exc
+        raise HTTPException(
+            status_code=502,
+            detail="O serviço de IA está temporariamente indisponível.",
+        ) from exc
+    except (urllib.error.URLError, TimeoutError) as exc:
+        logger.warning("Gemini indisponível ou timeout: %s", type(exc).__name__)
+        raise HTTPException(
+            status_code=504,
+            detail="A IA demorou demais para responder. Tente novamente.",
+        ) from exc
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        logger.warning("Resposta inválida recebida do Gemini.")
+        raise HTTPException(
+            status_code=502,
+            detail="A IA retornou uma resposta inválida. Tente novamente.",
+        ) from exc
+
+    candidatos = resultado.get("candidates") or []
+    partes = (
+        candidatos[0].get("content", {}).get("parts", [])
+        if candidatos else []
+    )
+    texto_melhorado = "\n".join(
+        parte.get("text", "").strip()
+        for parte in partes
+        if parte.get("text", "").strip()
+    ).strip()
+    if not texto_melhorado:
+        raise HTTPException(
+            status_code=502,
+            detail="A IA não conseguiu revisar esse trecho. Tente novamente.",
+        )
+    return texto_melhorado
+
+
 @app.post("/melhorar_texto")
 def melhorar_texto(
     dados: DadosMelhoria,
     usuario_id: str = Depends(usuario_autenticado),
 ):
-    """Aplica a melhoria textual disponível no protótipo a usuários autenticados."""
+    """Reescreve um trecho com IA generativa para usuários autenticados."""
     try:
-        texto_melhorado = melhorar_texto_ia(dados.secao, dados.texto)
+        texto_melhorado = _melhorar_com_gemini(dados.secao, dados.texto)
         return {"texto_melhorado": texto_melhorado}
+    except HTTPException:
+        raise
     except Exception as exc:
-        logger.exception("Erro ao melhorar texto do currículo.")
-        raise HTTPException(status_code=500, detail="Não foi possível melhorar o texto.") from exc
+        logger.exception("Erro inesperado ao melhorar texto do currículo.")
+        raise HTTPException(
+            status_code=500,
+            detail="Não foi possível melhorar o texto. Tente novamente.",
+        ) from exc
 
 
 def remover_arquivo(path: str) -> None:
