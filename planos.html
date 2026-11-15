@@ -196,7 +196,6 @@
           <p>A ativação do Premium precisa de uma confirmação segura pelo servidor. Não faça transferências por esta tela.</p>
         </div>
       </div>
-      </div>
     </div>
 
     <div style="text-align: center; margin-top: 40px; color: #666;">
@@ -207,13 +206,12 @@
   </div>
 
   <script>
-    function mostrarPix() {
-      document.getElementById('pix-info').style.display = 'block';
-    }
-
-    function selecionarPlano(plano) {
-      document.getElementById("resultado").innerHTML =
-        "<p style='text-align:center; font-weight:bold;'>Plano selecionado: " + plano + "</p>";
+    function mostrarStatusPlano(plano) {
+      const resultado = document.getElementById('resultado');
+      resultado.textContent = plano === 'gratuito'
+        ? 'A seleção do plano gratuito ainda não está conectada ao servidor. Nenhum plano foi alterado.'
+        : 'O checkout Premium ainda não está ativo. Nenhum pagamento foi iniciado.';
+      resultado.setAttribute('role', 'status');
     }
   </script>
 </body>
