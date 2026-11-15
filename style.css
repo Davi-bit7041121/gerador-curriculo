@@ -30,3 +30,45 @@ input,textarea{width:100%;border:1px solid #dfe5ee;background:#fbfcfe;color:#202
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media(max-width:850px){.workspace{grid-template-columns:1fr}.preview-column{grid-row:1}.preview-sticky{position:static}.resume-paper{min-height:420px}.paper-wrap{max-width:520px;margin:0 auto}.preview-tip{max-width:520px;margin:14px auto 0}.page-shell{padding-top:38px}}
 @media(max-width:560px){.topbar{height:62px;padding:0 17px}.secure-label{display:none}.page-shell{padding:34px 13px 18px}.intro{margin-bottom:25px}.intro h1{font-size:36px}.intro>p{font-size:13px}.editor-panel{padding:22px 17px}.panel-heading h2{font-size:18px}.field-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.form-section{padding:21px 0}.preview-sticky{padding:18px 13px}.resume-paper{padding:25px 20px 18px;min-height:400px}.site-footer{flex-direction:column;align-items:center;text-align:center}.logout-button{padding:7px 12px}}
+
+/* Telas de autenticação */
+body.auth-page{min-height:100vh;display:grid;place-items:center;padding:28px 16px;background:radial-gradient(circle at 15% 10%,#e9efff 0,transparent 35%),var(--bg)}
+.auth-page .container{width:min(100%,460px);padding:36px;background:#fff;border:1px solid #e8ecf3;border-radius:16px;box-shadow:0 14px 45px rgba(28,43,73,.08)}
+.auth-page h1{font:800 25px/1.2 Manrope,sans-serif;letter-spacing:-.8px;color:var(--ink);margin:0 0 25px;text-align:left}
+.auth-page form{display:flex;flex-direction:column;gap:8px}
+.auth-page label{font-size:12px;font-weight:700;color:#465267;margin:10px 0 0}
+.auth-page input{height:46px;margin:0}
+.auth-page form button,.auth-page .navigation-links button{min-height:46px;border:0;border-radius:8px;background:var(--blue);color:#fff;font-weight:700;cursor:pointer;margin-top:18px}
+.auth-page form button:hover{background:var(--blue-dark)}
+.auth-page .navigation-links{text-align:center;margin-top:22px}
+.auth-page .navigation-links p{font-size:12px;color:#788397;line-height:1.6}
+.auth-page a{color:var(--blue);font-weight:700;text-decoration:none}
+.auth-page a:hover{text-decoration:underline}
+.auth-page #resultado{font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.auth-page #loadingIndicator{font-size:12px;color:var(--blue)}
+.auth-page .navigation-links button{width:100%;margin:8px 0 12px;background:#fff;color:#344054;border:1px solid #dfe5ee}
+.auth-page .navigation-links button:hover{background:#f7f9fc}
+.plan-banner{padding:11px 14px;border-radius:9px;font-size:12px;line-height:1.5}
+.plan-banner.premium{background:#eaf8f2;color:#14734f}
+.plan-banner.free{background:#eff4ff;color:#3455a5}
+.plan-banner.warning{background:#fff6e5;color:#946200}
+.result-message[data-state="success"]{color:#13845d}
+.result-message[data-state="error"]{color:#b42318}
+.apply-ai-button{margin-top:10px;padding:8px 12px;border:0;border-radius:7px;background:#16865d;color:#fff;font-size:11px;font-weight:700;cursor:pointer}
+.apply-ai-button:hover{background:#116b4a}
+@media(max-width:480px){.auth-page .container{padding:26px 20px}.auth-page h1{font-size:22px}}
+
+/* Página de planos */
+body.plans-page{min-height:100vh;padding:42px 18px;background:var(--bg)}
+.plans-page .container{width:min(100%,980px);margin:0 auto;padding:34px;background:#fff;border:1px solid #e8ecf3;border-radius:16px;box-shadow:0 10px 35px rgba(28,43,73,.06)}
+.plans-page h1{text-align:center;font:800 29px Manrope,sans-serif;letter-spacing:-1px;color:var(--ink)}
+.plans-page .plano-card{width:100%;max-width:340px;border:1px solid #e0e6f0;border-radius:14px;padding:28px;background:#fff;box-shadow:0 8px 22px rgba(28,43,73,.05)}
+.plans-page .plano-premium{border:2px solid #7894ff}
+.plans-page .plano-titulo{font:750 18px Manrope,sans-serif;color:var(--ink)}
+.plans-page .plano-preco{font:800 32px Manrope,sans-serif;color:var(--blue)}
+.plans-page .plano-recursos li{font-size:13px;color:#596579;text-align:left}
+.plans-page .btn-selecionar{min-height:46px;border-radius:8px}
+.plans-page #resultado{max-width:620px;margin:20px auto 0;padding:13px;border-radius:9px;background:#fff6e5;color:#865d00;font-size:13px;line-height:1.5}
+.plans-page .payment-notice{margin-top:18px;padding:13px;border-radius:9px;background:#fff6e5;color:#805b12;font-size:12px;line-height:1.6;text-align:left}
+.plans-page .payment-notice p{margin:5px 0 0}
+@media(max-width:560px){body.plans-page{padding:18px 12px}.plans-page .container{padding:23px 16px}.plans-page .plano-card{padding:22px}}
