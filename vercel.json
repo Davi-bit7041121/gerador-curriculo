@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/gerar_curriculo", "destination": "/api/index" },
+    { "source": "/health", "destination": "/api/index" },
+    { "source": "/cadastrar", "destination": "/api/index" },
+    { "source": "/login", "destination": "/api/index" },
+    { "source": "/melhorar_texto", "destination": "/api/index" }
+  ]
+}
