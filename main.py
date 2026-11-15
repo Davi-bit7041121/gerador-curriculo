@@ -156,6 +156,8 @@ def health_check():
 @app.post("/cadastrar", status_code=201)
 def cadastrar(dados: DadosCadastro):
     """Cria uma conta; senhas são armazenadas somente como hash Argon2."""
+    # Valida a configuração antes de gravar a conta no banco.
+    get_jwt_secret()
     email = str(dados.email).strip().lower()
     nome_usuario = dados.nome_usuario.strip()
     username_normalizado = nome_usuario.casefold()
