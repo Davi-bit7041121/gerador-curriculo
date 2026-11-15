@@ -189,11 +189,11 @@
           <li>Suporte prioritário</li>
           <li>Análise de mercado</li>
         </ul>
-        <button class="btn-selecionar btn-premium" onclick="mostrarStatusPlano('premium')">Pagar com Pix</button>
+        <button class="btn-selecionar btn-premium" onclick="mostrarStatusPlano('premium')">Ativar Premium para teste</button>
 
         <div class="payment-notice">
-          <strong>Pagamento ainda não disponível</strong>
-          <p>A ativação do Premium precisa de uma confirmação segura pelo servidor. Não faça transferências por esta tela.</p>
+          <strong>Modo de teste — sem cobrança</strong>
+          <p>Ative o Premium temporariamente para testar os recursos. Nenhum pagamento será realizado e isso não representa uma assinatura.</p>
         </div>
       </div>
     </div>
@@ -223,13 +223,18 @@
         return;
       }
 
-      if (plano !== 'gratuito') {
-        resultado.textContent = 'O checkout Premium ainda não está ativo. Nenhum pagamento foi iniciado.';
+      if (plano === 'premium') {
+        usuario.plano = 'premium';
+        usuario.modoTestePremium = true;
+        localStorage.setItem('usuario', JSON.stringify(usuario));
+        resultado.textContent = 'Premium de teste ativado! Sem cobrança. Abrindo o gerador...';
         resultado.setAttribute('role', 'status');
+        window.location.href = '/index.html';
         return;
       }
 
       usuario.plano = 'gratuito';
+      delete usuario.modoTestePremium;
       localStorage.setItem('usuario', JSON.stringify(usuario));
 
       resultado.textContent = 'Plano gratuito selecionado! Abrindo o gerador de currículos...';
