@@ -1,134 +1,152 @@
 # resume_generator.py
-from jinja2 import Template
-import tempfile
-import os
+"""Geração segura de currículos em PDF."""
 import logging
-from slugify import slugify
-from fastapi import HTTPException
-from reportlab.lib.pagesizes import letter, A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_LEFT
+import os
+import tempfile
+from html import escape as html_escape
 
-# Configuração básica de logging para este módulo
+from fastapi import HTTPException
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import mm
+from reportlab.platypus import (
+    Paragraph,
+    SimpleDocTemplate,
+    Spacer,
+    Table,
+    TableStyle,
+)
+
 logger = logging.getLogger(__name__)
 
+
+def _texto_para_paragrafo(valor: str) -> str:
+    """Escapa conteúdo do usuário antes de entregá-lo ao parser XML do ReportLab."""
+    linhas = str(valor or "").splitlines()
+    return "<br/>".join(html_escape(linha, quote=True) for linha in linhas)
+
+
 def gerar_curriculo_html(dados):
-    """
-    Esta função agora é mantida para compatibilidade, mas não usamos HTML.
-    """
+    """Mantida por compatibilidade com versões anteriores do projeto."""
     return f"Currículo de {dados.nome}"
 
+
 def gerar_curriculo_pdf(dados):
-    """
-    Gera um arquivo PDF do currículo diretamente dos dados.
-    """
+    """Gera um PDF completo a partir do objeto de dados."""
     return converter_html_para_pdf("", dados)
 
-def converter_html_para_pdf(html, dados_ou_nome):
-    """
-    Converte os dados do currículo em um arquivo PDF usando reportlab.
-    """
-    # Se recebemos um objeto dados, usa ele; senão assume que é uma string nome
-    if hasattr(dados_ou_nome, 'nome'):
-        dados = dados_ou_nome
-        nome = dados.nome
-    else:
-        nome = dados_ou_nome
-        # Para compatibilidade reversa, se só temos nome, não podemos gerar PDF completo
-        raise ValueError("Função precisa receber objeto dados completo")
-    
-    # Usa slugify para criar um nome de arquivo seguro e amigável
-    nome_seguro = slugify(nome, separator='_')
 
-    # Define o caminho do PDF no diretório temporário
-    pdf_path = os.path.join(tempfile.gettempdir(), f"{nome_seguro}_curriculo.pdf")
+def converter_html_para_pdf(html, dados_ou_nome):
+    """Gera um PDF A4 usando os dados validados pelo backend."""
+    if not hasattr(dados_ou_nome, "nome"):
+        raise ValueError("A geração do PDF exige o objeto completo de dados do currículo.")
+
+    dados = dados_ou_nome
+    nome = str(dados.nome).strip()
+    if not nome:
+        raise ValueError("O nome do candidato não pode ficar vazio.")
+
+    # Um arquivo temporário exclusivo evita colisões entre solicitações simultâneas
+    # de pessoas com o mesmo nome.
+    fd, pdf_path = tempfile.mkstemp(prefix="curriculo_", suffix=".pdf")
+    os.close(fd)
 
     try:
-        # Cria o documento PDF
-        doc = SimpleDocTemplate(pdf_path, pagesize=A4,
-                              rightMargin=72, leftMargin=72,
-                              topMargin=72, bottomMargin=18)
-
-        # Container para os elementos do PDF
-        story = []
-
-        # Estilos
         styles = getSampleStyleSheet()
         title_style = ParagraphStyle(
-            'CustomTitle',
-            parent=styles['Heading1'],
-            fontSize=24,
-            spaceAfter=30,
+            "ResumeTitle",
+            parent=styles["Title"],
+            fontName="Helvetica-Bold",
+            fontSize=21,
+            leading=26,
             alignment=TA_CENTER,
-            textColor=colors.HexColor('#007BFF')
+            textColor=colors.HexColor("#2448cf"),
+            spaceAfter=8,
         )
-
+        contact_style = ParagraphStyle(
+            "ResumeContact",
+            parent=styles["Normal"],
+            fontSize=9,
+            leading=13,
+            textColor=colors.HexColor("#526078"),
+        )
         heading_style = ParagraphStyle(
-            'CustomHeading',
-            parent=styles['Heading2'],
-            fontSize=16,
-            spaceAfter=12,
-            spaceBefore=20,
-            textColor=colors.HexColor('#0056b3')
+            "ResumeHeading",
+            parent=styles["Heading2"],
+            fontName="Helvetica-Bold",
+            fontSize=11,
+            leading=14,
+            spaceBefore=13,
+            spaceAfter=6,
+            textColor=colors.HexColor("#2448cf"),
+        )
+        body_style = ParagraphStyle(
+            "ResumeBody",
+            parent=styles["BodyText"],
+            fontName="Helvetica",
+            fontSize=9.5,
+            leading=14,
+            textColor=colors.HexColor("#273449"),
+            spaceAfter=4,
+            wordWrap="LTR",
         )
 
-        normal_style = styles['Normal']
-        normal_style.fontSize = 11
-        normal_style.spaceAfter = 6
-
-        # Título (nome)
-        story.append(Paragraph(nome, title_style))
-        story.append(Spacer(1, 12))
-
-        # Informações de contato
-        contact_data = [
-            ['Email:', dados.email],
-            ['Telefone:', dados.telefone]
+        story = [Paragraph(_texto_para_paragrafo(nome), title_style)]
+        contatos = [
+            Paragraph(f"<b>E-mail:</b> {html_escape(str(dados.email), quote=True)}", contact_style),
+            Paragraph(f"<b>Telefone:</b> {html_escape(str(dados.telefone), quote=True)}", contact_style),
         ]
-        contact_table = Table(contact_data, colWidths=[1.5*inch, 4*inch])
+        contact_table = Table([[contatos[0], contatos[1]]], colWidths=[85 * mm, 85 * mm])
         contact_table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 11),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ("LEFTPADDING", (0, 0), (-1, -1), 0),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ("LINEBELOW", (0, 0), (-1, -1), 0.5, colors.HexColor("#e5eaf2")),
         ]))
-        story.append(contact_table)
-        story.append(Spacer(1, 20))
+        story.extend([contact_table, Spacer(1, 8)])
 
-        # Resumo Profissional
-        story.append(Paragraph("Resumo Profissional", heading_style))
-        story.append(Paragraph(dados.resumo, normal_style))
-        story.append(Spacer(1, 12))
+        secoes = [
+            ("Resumo Profissional", dados.resumo, False),
+            ("Experiências Profissionais", dados.experiencias, True),
+            ("Formação Acadêmica", dados.formacao, True),
+            ("Habilidades", dados.habilidades, True),
+        ]
 
-        # Experiências Profissionais
-        story.append(Paragraph("Experiências Profissionais", heading_style))
-        for experiencia in dados.experiencias.split('\n'):
-            if experiencia.strip():
-                story.append(Paragraph(f"• {experiencia.strip()}", normal_style))
-        story.append(Spacer(1, 12))
+        for titulo, conteudo, usar_lista in secoes:
+            story.append(Paragraph(html_escape(titulo), heading_style))
+            linhas = [linha.strip() for linha in str(conteudo or "").splitlines() if linha.strip()]
+            if not linhas:
+                story.append(Paragraph("Não informado.", body_style))
+            elif usar_lista:
+                for linha in linhas:
+                    story.append(Paragraph(f"&#8226;&nbsp; {_texto_para_paragrafo(linha)}", body_style))
+            else:
+                story.append(Paragraph(_texto_para_paragrafo(str(conteudo)), body_style))
 
-        # Formação Acadêmica
-        story.append(Paragraph("Formação Acadêmica", heading_style))
-        for formacao_item in dados.formacao.split('\n'):
-            if formacao_item.strip():
-                story.append(Paragraph(f"• {formacao_item.strip()}", normal_style))
-        story.append(Spacer(1, 12))
-
-        # Habilidades
-        story.append(Paragraph("Habilidades", heading_style))
-        for habilidade in dados.habilidades.split('\n'):
-            if habilidade.strip():
-                story.append(Paragraph(f"• {habilidade.strip()}", normal_style))
-
-        # Constrói o PDF
+        doc = SimpleDocTemplate(
+            pdf_path,
+            pagesize=A4,
+            rightMargin=20 * mm,
+            leftMargin=20 * mm,
+            topMargin=18 * mm,
+            bottomMargin=18 * mm,
+            title=f"Currículo - {nome}",
+            author="Gerador de Currículo",
+        )
         doc.build(story)
-        logger.info(f"PDF gerado com sucesso usando reportlab em: {pdf_path}")
+        logger.info("PDF de currículo gerado com sucesso.")
+        return pdf_path
 
-    except Exception as e:
-        logger.error(f"Erro ao gerar PDF para {nome}: {e}")
-        raise HTTPException(status_code=500, detail=f"Falha ao gerar o PDF do currículo: {str(e)}")
-
-    return pdf_path
+    except Exception as exc:
+        try:
+            os.remove(pdf_path)
+        except OSError:
+            pass
+        logger.exception("Falha ao gerar PDF.")
+        raise HTTPException(
+            status_code=500,
+            detail="Não foi possível gerar o PDF. Revise os dados e tente novamente.",
+        ) from exc
