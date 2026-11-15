@@ -14,6 +14,8 @@ from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from google.auth.transport.requests import Request as GoogleAuthRequest
+from google.oauth2 import id_token as google_id_token
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from pwdlib import PasswordHash
 
@@ -119,22 +121,26 @@ def _criar_token(usuario_id: str) -> str:
 def usuario_autenticado(
     credenciais: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> str:
+    """Valida o ID token emitido pelo Firebase Authentication."""
     if credenciais is None or credenciais.scheme.lower() != "bearer":
         raise HTTPException(status_code=401, detail="Faça login para continuar.")
+    project_id = os.getenv("FIREBASE_PROJECT_ID", "curriculoiagerador-ef3dc")
     try:
-        payload = jwt.decode(
+        payload = google_id_token.verify_token(
             credenciais.credentials,
-            get_jwt_secret(),
-            algorithms=["HS256"],
+            GoogleAuthRequest(),
+            audience=project_id,
+            certs_url="https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com",
         )
+        if payload.get("iss") != f"https://securetoken.google.com/{project_id}":
+            raise ValueError("Emissor do token inválido.")
         usuario_id = payload.get("sub")
         if not usuario_id:
-            raise jwt.InvalidTokenError("Token sem identificador de usuário")
+            raise ValueError("Token sem identificador de usuário.")
         return usuario_id
-    except jwt.ExpiredSignatureError as exc:
-        raise HTTPException(status_code=401, detail="Sua sessão expirou. Entre novamente.") from exc
-    except jwt.InvalidTokenError as exc:
-        raise HTTPException(status_code=401, detail="Sessão inválida. Entre novamente.") from exc
+    except Exception as exc:
+        logger.info("Token Firebase inválido ou expirado: %s", type(exc).__name__)
+        raise HTTPException(status_code=401, detail="Sessão inválida ou expirada. Entre novamente.") from exc
 
 
 def _dados_publicos(usuario_id: str, dados: dict) -> dict:
