@@ -1,64 +1,57 @@
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('loginForm');
+  if (!form) return;
 
-document.getElementById('loginForm').addEventListener('submit', async function (e) {
-  e.preventDefault();
+  form.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    const resultado = document.getElementById('resultado');
+    const loading = document.getElementById('loadingIndicator');
+    const botao = form.querySelector('button[type="submit"]');
+    const dados = new FormData(form);
 
-  const resultadoDiv = document.getElementById('resultado');
-  const loadingIndicator = document.getElementById('loadingIndicator');
+    resultado.textContent = '';
+    if (loading) loading.style.display = 'block';
+    if (botao) botao.disabled = true;
 
-  // Limpa mensagens anteriores
-  resultadoDiv.innerText = '';
-  resultadoDiv.style.color = '';
+    try {
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: dados.get('emailLogin'),
+          senha: dados.get('senhaLogin')
+        })
+      });
 
-  // Mostra o indicador de carregamento
-  if (loadingIndicator) {
-    loadingIndicator.style.display = 'block';
-  }
+      let resposta;
+      try { resposta = await response.json(); }
+      catch (_) { throw new Error('O servidor retornou uma resposta inválida.'); }
 
-  const formData = new FormData(e.target);
-  const data = {
-    email: formData.get('emailLogin'),
-    senha: formData.get('senhaLogin')
-  };
+      if (!response.ok) throw new Error(resposta.detail || 'Não foi possível entrar.');
+      if (!resposta.token || !resposta.usuario) {
+        throw new Error('Resposta de login incompleta. Entre em contato com o suporte.');
+      }
 
-  try {
-    const response = await fetch('/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
+      localStorage.setItem('token', resposta.token);
+      localStorage.setItem('usuario', JSON.stringify(resposta.usuario));
+      resultado.textContent = 'Login realizado. Redirecionando...';
+      resultado.dataset.state = 'success';
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || 'Erro desconhecido ao fazer login.');
+      // O repositório não contém uma rota /dashboard; encaminha para as páginas existentes.
+      window.setTimeout(() => {
+        window.location.href = resposta.usuario.plano ? '/index.html' : '/planos.html';
+      }, 500);
+    } catch (error) {
+      console.error('Erro no login:', error);
+      resultado.textContent = error.message || 'Erro ao fazer login.';
+      resultado.dataset.state = 'error';
+    } finally {
+      if (loading) loading.style.display = 'none';
+      if (botao) botao.disabled = false;
     }
-
-    const responseData = await response.json();
-
-    // Salva token e dados do usuário no localStorage
-    localStorage.setItem('token', responseData.token);
-    localStorage.setItem('usuario', JSON.stringify(responseData.usuario));
-
-    resultadoDiv.innerText = 'Login realizado com sucesso! Redirecionando...';
-    resultadoDiv.style.color = 'green';
-
-    // Redireciona para o dashboard após login
-    setTimeout(() => {
-      window.location.href = '/dashboard';
-    }, 1000);
-
-  } catch (error) {
-    console.error('Erro no login:', error);
-    resultadoDiv.innerText = `Erro: ${error.message}`;
-    resultadoDiv.style.color = 'red';
-  } finally {
-    if (loadingIndicator) {
-      loadingIndicator.style.display = 'none';
-    }
-  }
+  });
 });
 
-// Função para login com Google
 function loginComGoogle() {
-  // Redireciona para o endpoint de autenticação do Google
   window.location.href = '/auth/google';
 }

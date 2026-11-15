@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Escolha seu Plano - Gerador de Currículo</title>
-  <link rel="stylesheet" href="stile.css" />
+  <link rel="stylesheet" href="style.css" />
   <style>
     .planos-container {
       display: flex;
@@ -150,7 +150,7 @@
     }
   </style>
 </head>
-<body>
+<body class="plans-page">
   <div class="container">
     <h1>Escolha seu Plano</h1>
     <p style="text-align: center; color: #666; margin-bottom: 40px;">
@@ -170,7 +170,7 @@
           <li class="recurso-limitado">Sem otimização de IA</li>
           <li class="recurso-limitado">Suporte limitado</li>
         </ul>
-        <button class="btn-selecionar btn-gratuito" onclick="selecionarPlano('gratuito')">
+        <button class="btn-selecionar btn-gratuito" onclick="mostrarStatusPlano('gratuito')">
           Começar Grátis
         </button>
       </div>
@@ -189,15 +189,11 @@
           <li>Suporte prioritário</li>
           <li>Análise de mercado</li>
         </ul>
-        <button class="btn-selecionar btn-premium" onclick="mostrarPix()">Pagar com Pix</button>
+        <button class="btn-selecionar btn-premium" onclick="mostrarStatusPlano('premium')">Pagar com Pix</button>
 
-        <!-- QR Code Pix -->
-        <div id="pix-info">
-          <p>Escaneie com seu app de banco:</p>
-          <img src="https://chart.googleapis.com/chart?cht=qr&chs=250x250&chl=00020126460014br.gov.bcb.pix0111067339531610209Curriculo52040000530398654049.995802BR5925DAVI%20FORTINI%20MOREIRA%20DOS%206007GOIANIA62290525TqOVqWrN2fMB8HNfJKdyqCiiP63044262" alt="QR Code Pix" />
-          <p style="font-size: 12px; color: #666;">Ou copie o código Pix:</p>
-          <textarea readonly>00020126460014br.gov.bcb.pix0111067339531610209Curriculo52040000530398654049.995802BR5925DAVI FORTINI MOREIRA DOS 6007GOIANIA62290525TqOVqWrN2fMB8HNfJKdyqCiiP63044262</textarea>
-          <a class="comprovante-link" href="https://forms.gle/SEU-LINK-AQUI" target="_blank">Enviar Comprovante</a>
+        <div class="payment-notice">
+          <strong>Pagamento ainda não disponível</strong>
+          <p>A ativação do Premium precisa de uma confirmação segura pelo servidor. Não faça transferências por esta tela.</p>
         </div>
       </div>
     </div>
@@ -210,13 +206,12 @@
   </div>
 
   <script>
-    function mostrarPix() {
-      document.getElementById('pix-info').style.display = 'block';
-    }
-
-    function selecionarPlano(plano) {
-      document.getElementById("resultado").innerHTML =
-        "<p style='text-align:center; font-weight:bold;'>Plano selecionado: " + plano + "</p>";
+    function mostrarStatusPlano(plano) {
+      const resultado = document.getElementById('resultado');
+      resultado.textContent = plano === 'gratuito'
+        ? 'A seleção do plano gratuito ainda não está conectada ao servidor. Nenhum plano foi alterado.'
+        : 'O checkout Premium ainda não está ativo. Nenhum pagamento foi iniciado.';
+      resultado.setAttribute('role', 'status');
     }
   </script>
 </body>

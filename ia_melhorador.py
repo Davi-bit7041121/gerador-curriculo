@@ -1,127 +1,91 @@
-
+"""Aprimoramento conservador de textos de currículo, sem inventar qualificações."""
 import re
-from typing import Dict, Any
+import unicodedata
+
+
+def _normalizar_inicio(texto: str) -> str:
+    texto = texto.strip()
+    return texto[:1].upper() + texto[1:] if texto else ""
+
 
 def melhorar_texto_ia(secao_curriculo: str, texto_original: str) -> str:
-    """
-    Melhora um texto de uma seção específica do currículo usando regras inteligentes.
-    
-    Args:
-        secao_curriculo (str): O nome da seção (ex: "Resumo Profissional", "Experiência Profissional").
-        texto_original (str): O texto fornecido pelo usuário.
-    
-    Returns:
-        str: O texto aprimorado pela IA.
-    """
-    texto = texto_original.strip()
-    
-    if secao_curriculo == "Resumo Profissional":
+    texto = _normalizar_inicio(texto_original)
+    if not texto:
+        return texto
+
+    secao = (secao_curriculo or "").strip().casefold()
+    if secao == "resumo profissional".casefold():
         return melhorar_resumo_profissional(texto)
-    elif secao_curriculo == "Experiências Profissionais":
+    if secao == "experiências profissionais".casefold():
         return melhorar_experiencia_profissional(texto)
-    elif secao_curriculo == "Formação Acadêmica":
+    if secao == "formação acadêmica".casefold():
         return melhorar_formacao_academica(texto)
-    elif secao_curriculo == "Habilidades":
+    if secao == "habilidades".casefold():
         return melhorar_habilidades(texto)
-    else:
-        return melhorar_texto_generico(texto)
+    return melhorar_texto_generico(texto)
+
 
 def melhorar_resumo_profissional(texto: str) -> str:
-    """Melhora o resumo profissional."""
-    # Capitaliza primeira letra e corrige gramática básica
-    texto = texto[0].upper() + texto[1:] if texto else ""
-    
-    # Adiciona conectores profissionais
-    if "experiência" in texto.lower() and "anos" in texto.lower():
-        texto = re.sub(r'tenho (\d+) anos? de experiência', r'Profissional com \1 anos de experiência consolidada', texto, flags=re.IGNORECASE)
-    
-    # Melhora descrições genéricas
-    texto = re.sub(r'gosto de trabalhar', 'Tenho aptidão para trabalhar', texto, flags=re.IGNORECASE)
-    texto = re.sub(r'sou uma pessoa', 'Sou um(a) profissional', texto, flags=re.IGNORECASE)
-    
-    # Adiciona objetivo profissional se não existir
-    if not any(palavra in texto.lower() for palavra in ['objetivo', 'busco', 'procuro']):
-        texto += " Busco oportunidades para aplicar minhas competências e contribuir para o crescimento organizacional."
-    
+    texto = _normalizar_inicio(texto)
+    texto = re.sub(r"\bgosto de trabalhar\b", "Tenho facilidade para trabalhar", texto, flags=re.IGNORECASE)
+    texto = re.sub(r"\bsou uma pessoa\b", "Sou um profissional", texto, flags=re.IGNORECASE)
+    # Não acrescenta objetivos, anos de experiência ou competências que o usuário não informou.
     return texto
+
 
 def melhorar_experiencia_profissional(texto: str) -> str:
-    """Melhora a descrição de experiência profissional."""
-    texto = texto[0].upper() + texto[1:] if texto else ""
-    
-    # Substitui verbos informais por verbos de ação
+    texto = _normalizar_inicio(texto)
     substituicoes = {
-        r'trabalhei como': 'Atuei como',
-        r'fazia': 'Realizava',
-        r'ajudava': 'Auxiliava',
-        r'atendia clientes': 'Prestava atendimento ao cliente',
-        r'organizava produtos': 'Gerenciava organização de produtos',
-        r'vendia': 'Conduzia vendas de',
-        r'cuidava': 'Gerenciava',
-        r'fiz': 'Executei',
-        r'consegui': 'Alcancei'
+        r"\btrabalhei como\b": "Atuei como",
+        r"\bfazia\b": "Realizava",
+        r"\bajudava\b": "Auxiliava",
+        r"\batendia clientes\b": "Prestava atendimento ao cliente",
+        r"\borganizava produtos\b": "Organizava produtos",
+        r"\bcuidava\b": "Era responsável por",
+        r"\bfiz\b": "Realizei",
+        r"\bconsegui\b": "Alcancei",
     }
-    
     for antigo, novo in substituicoes.items():
         texto = re.sub(antigo, novo, texto, flags=re.IGNORECASE)
-    
-    # Adiciona métricas se possível
-    if 'vendas' in texto.lower():
-        texto += " Contribuindo para o alcance das metas comerciais estabelecidas."
-    
+    # Não cria métricas nem resultados não fornecidos pelo candidato.
     return texto
+
 
 def melhorar_formacao_academica(texto: str) -> str:
-    """Melhora a descrição de formação acadêmica."""
-    texto = texto[0].upper() + texto[1:] if texto else ""
-    
-    # Padroniza descrições
-    texto = re.sub(r'estudei na', 'Graduado(a) pela', texto, flags=re.IGNORECASE)
-    texto = re.sub(r'faculdade (\w+)', r'Instituição \1', texto, flags=re.IGNORECASE)
-    texto = re.sub(r'me formei em', 'Formação em', texto, flags=re.IGNORECASE)
-    
+    texto = _normalizar_inicio(texto)
+    texto = re.sub(r"\bestudei na\b", "Estudos realizados na", texto, flags=re.IGNORECASE)
+    texto = re.sub(r"\bme formei em\b", "Formação em", texto, flags=re.IGNORECASE)
+    # Evita dizer "graduado" sem confirmação explícita de conclusão.
     return texto
 
+
+def _sem_acentos(texto: str) -> str:
+    return "".join(
+        caractere
+        for caractere in unicodedata.normalize("NFKD", texto)
+        if not unicodedata.combining(caractere)
+    )
+
+
 def melhorar_habilidades(texto: str) -> str:
-    """Melhora e organiza a lista de habilidades."""
-    # Separa habilidades por vírgula
-    habilidades = [h.strip().title() for h in texto.split(',')]
-    
-    # Melhora nomes das habilidades
-    melhorias = {
-        'Excel': 'Microsoft Excel Avançado',
-        'Word': 'Microsoft Word',
-        'Powerpoint': 'Microsoft PowerPoint',
-        'Comunicacao': 'Comunicação Interpessoal',
-        'Vendas': 'Técnicas de Vendas',
-        'Ingles': 'Inglês Intermediário',
-        'Organizacao': 'Organização e Planejamento',
-        'Lideranca': 'Liderança de Equipes'
-    }
-    
-    habilidades_melhoradas = []
-    for hab in habilidades:
-        hab_melhorada = melhorias.get(hab, hab)
-        habilidades_melhoradas.append(hab_melhorada)
-    
-    # Organiza por categorias
-    tecnicas = [h for h in habilidades_melhoradas if any(word in h.lower() for word in ['excel', 'word', 'powerpoint', 'sistema', 'python', 'java', 'sql'])]
-    comportamentais = [h for h in habilidades_melhoradas if any(word in h.lower() for word in ['comunicação', 'liderança', 'organização', 'vendas', 'negociação'])]
-    
-    resultado = ""
-    if tecnicas:
-        resultado += "**Competências Técnicas:** " + ", ".join(tecnicas) + "\n"
-    if comportamentais:
-        resultado += "**Competências Comportamentais:** " + ", ".join(comportamentais)
-    
-    return resultado if "**" in resultado else ", ".join(habilidades_melhoradas)
+    # Aceita vírgulas e quebras de linha; não presume nível de proficiência.
+    itens = re.split(r"[,;\n]+", texto)
+    normalizadas = []
+    vistos = set()
+    for item in itens:
+        habilidade = item.strip()
+        if not habilidade:
+            continue
+        chave = _sem_acentos(habilidade).casefold()
+        if chave in vistos:
+            continue
+        vistos.add(chave)
+        normalizadas.append(habilidade)
+    return "\n".join(normalizadas)
+
 
 def melhorar_texto_generico(texto: str) -> str:
-    """Melhora texto genérico."""
-    texto = texto[0].upper() + texto[1:] if texto else ""
-    
-    # Correções básicas de gramática e formalidade
-    texto = re.sub(r'\beu\b', 'Profissional', texto, flags=re.IGNORECASE)
-    texto = re.sub(r'\bvc\b|\bvoce\b', 'você', texto, flags=re.IGNORECASE)
-    
+    texto = _normalizar_inicio(texto)
+    texto = re.sub(r"\bvc\b", "você", texto, flags=re.IGNORECASE)
+    texto = re.sub(r"\bvoce\b", "você", texto, flags=re.IGNORECASE)
     return texto
