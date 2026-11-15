@@ -208,10 +208,33 @@
   <script>
     function mostrarStatusPlano(plano) {
       const resultado = document.getElementById('resultado');
-      resultado.textContent = plano === 'gratuito'
-        ? 'A seleção do plano gratuito ainda não está conectada ao servidor. Nenhum plano foi alterado.'
-        : 'O checkout Premium ainda não está ativo. Nenhum pagamento foi iniciado.';
+      const token = localStorage.getItem('token');
+      let usuario;
+
+      try {
+        usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
+      } catch (_) {
+        usuario = null;
+      }
+
+      if (!token || !usuario) {
+        resultado.textContent = 'Sua sessão não foi encontrada. Entre novamente para escolher um plano.';
+        resultado.setAttribute('role', 'alert');
+        return;
+      }
+
+      if (plano !== 'gratuito') {
+        resultado.textContent = 'O checkout Premium ainda não está ativo. Nenhum pagamento foi iniciado.';
+        resultado.setAttribute('role', 'status');
+        return;
+      }
+
+      usuario.plano = 'gratuito';
+      localStorage.setItem('usuario', JSON.stringify(usuario));
+
+      resultado.textContent = 'Plano gratuito selecionado! Abrindo o gerador de currículos...';
       resultado.setAttribute('role', 'status');
+      window.location.href = '/index.html';
     }
   </script>
 </body>
