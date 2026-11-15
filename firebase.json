@@ -13,12 +13,6 @@
       "Dockerfile",
       "usuarios.json",
       ".github/**"
-    ],
-    "rewrites": [
-      { "source": "/health", "run": { "serviceId": "curriculo-api", "region": "southamerica-east1" } },
-      { "source": "/cadastrar", "run": { "serviceId": "curriculo-api", "region": "southamerica-east1" } },
-      { "source": "/login", "run": { "serviceId": "curriculo-api", "region": "southamerica-east1" } },
-      { "source": "/gerar_curriculo", "run": { "serviceId": "curriculo-api", "region": "southamerica-east1" } }
     ]
   }
 }
