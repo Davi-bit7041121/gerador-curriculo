@@ -1,65 +1,88 @@
-document.getElementById('cadastroForm').addEventListener('submit', async function (e) {
-  e.preventDefault();
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('cadastroForm');
+  if (!form) return;
 
-  const resultadoDiv = document.getElementById('resultado');
-  const loadingIndicator = document.getElementById('loadingIndicator');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-  // Limpa mensagens anteriores
-  resultadoDiv.innerText = '';
-  resultadoDiv.style.color = '';
-  // Mostra o indicador de carregamento
-  loadingIndicator.style.display = 'block';
+    const resultadoDiv = document.getElementById('resultado');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const submitButton = form.querySelector('button[type="submit"]');
 
-  const formData = new FormData(e.target);
-  const senha = formData.get('senha');
-  const confirmarSenha = formData.get('confirmarSenha');
+    resultadoDiv.textContent = '';
+    resultadoDiv.dataset.state = '';
+    if (loadingIndicator) loadingIndicator.style.display = 'block';
+    if (submitButton) submitButton.disabled = true;
 
-  // Validação das senhas
-  if (senha !== confirmarSenha) {
-    resultadoDiv.innerText = 'As senhas não coincidem!';
-    resultadoDiv.style.color = 'red';
-    loadingIndicator.style.display = 'none';
-    return;
-  }
+    const formData = new FormData(form);
+    const senha = String(formData.get('senha') || '');
+    const confirmarSenha = String(formData.get('confirmarSenha') || '');
 
-  const data = {
-    nomeUsuario: formData.get('nomeUsuario'),
-    email: formData.get('emailUsuario'),
-    senha: formData.get('senha'),
-    nomeCompleto: formData.get('nomeCompleto'),
-    telefone: formData.get('telefoneUsuario')
-  };
-
-  try {
-    const response = await fetch('/cadastrar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || 'Erro desconhecido ao cadastrar usuário.');
+    if (senha !== confirmarSenha) {
+      resultadoDiv.textContent = 'As senhas não coincidem.';
+      resultadoDiv.dataset.state = 'error';
+      if (loadingIndicator) loadingIndicator.style.display = 'none';
+      if (submitButton) submitButton.disabled = false;
+      return;
     }
 
-    const responseData = await response.json();
-    resultadoDiv.innerText = 'Cadastro realizado com sucesso! Redirecionando para planos...';
-    resultadoDiv.style.color = 'green';
+    const data = {
+      nomeUsuario: formData.get('nomeUsuario'),
+      email: formData.get('emailUsuario'),
+      senha,
+      nomeCompleto: formData.get('nomeCompleto'),
+      telefone: formData.get('telefoneUsuario')
+    };
 
-    // Salva token e dados do usuário no localStorage
-    localStorage.setItem('token', responseData.token);
-    localStorage.setItem('usuario', JSON.stringify(responseData.usuario));
+    try {
+      const response = await fetch('/cadastrar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data)
+      });
 
-    // Redireciona para a página de planos após 2 segundos
-    setTimeout(() => {
-      window.location.href = 'planos.html';
-    }, 2000);
+      const contentType = response.headers.get('content-type') || '';
+      const responseText = await response.text();
+      let responseData = null;
 
-  } catch (error) {
-    console.error('Erro:', error);
-    resultadoDiv.innerText = `Erro ao cadastrar: ${error.message}`;
-    resultadoDiv.style.color = 'red';
-  } finally {
-    loadingIndicator.style.display = 'none';
-  }
+      if (contentType.includes('application/json')) {
+        try {
+          responseData = JSON.parse(responseText);
+        } catch (_) {
+          throw new Error('O servidor informou JSON, mas devolveu uma resposta inválida.');
+        }
+      } else {
+        // Firebase Hosting costuma devolver HTML quando não existe uma rota/rewrite
+        // para a API. Evita o confuso "Unexpected token T" do JSON.parse.
+        if (response.status === 404 || /text\/html/i.test(contentType) || /^\s*<!doctype html/i.test(responseText)) {
+          throw new Error('O serviço de cadastro não está conectado ao servidor. A rota /cadastrar não foi encontrada. O backend precisa ser implantado e conectado ao site.');
+        }
+        throw new Error(`O servidor respondeu em formato inesperado (HTTP ${response.status}). Verifique a implantação do backend.`);
+      }
+
+      if (!response.ok) {
+        throw new Error(responseData?.detail || responseData?.message || `Falha no cadastro (HTTP ${response.status}).`);
+      }
+
+      if (!responseData?.token || !responseData?.usuario) {
+        throw new Error('O servidor recebeu o cadastro, mas não retornou token e usuário. A API precisa ser configurada corretamente.');
+      }
+
+      localStorage.setItem('token', responseData.token);
+      localStorage.setItem('usuario', JSON.stringify(responseData.usuario));
+      resultadoDiv.textContent = 'Cadastro realizado com sucesso! Redirecionando para os planos...';
+      resultadoDiv.dataset.state = 'success';
+
+      window.setTimeout(() => {
+        window.location.href = '/planos.html';
+      }, 1200);
+    } catch (error) {
+      console.error('Erro no cadastro:', error);
+      resultadoDiv.textContent = `Erro ao cadastrar: ${error.message || 'Não foi possível concluir o cadastro.'}`;
+      resultadoDiv.dataset.state = 'error';
+    } finally {
+      if (loadingIndicator) loadingIndicator.style.display = 'none';
+      if (submitButton) submitButton.disabled = false;
+    }
+  });
 });
