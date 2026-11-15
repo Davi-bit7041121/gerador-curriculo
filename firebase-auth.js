@@ -1,5 +1,5 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyCYKCanPFIVqK8TfD0v4p7JB7parMUv4RgT4",
+  apiKey: "AIzaSyCKanPFIVqK8TfD0v4p7JB7parMUv4RgT4",
   authDomain: "curriculoiagerador-ef3dc.firebaseapp.com",
   projectId: "curriculoiagerador-ef3dc",
   storageBucket: "curriculoiagerador-ef3dc.firebasestorage.app",
